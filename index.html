@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CinePhile — Movie Discovery Hub</title>
+  <meta name="description" content="Discover, search, and save your favorite movies and TV series with CinePhile – powered by OMDb API." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- Background Atmosphere -->
+  <div class="bg-orbs" aria-hidden="true">
+    <div class="orb orb-red"></div>
+    <div class="orb orb-blue"></div>
+  </div>
+
+  <!-- App Root -->
+  <div id="app-root">
+
+    <!-- Header -->
+    <header id="app-header">
+      <div class="header-inner">
+        <!-- Logo -->
+        <div class="logo-group">
+          <div class="logo-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="20" x="2" y="2" rx="2.18" ry="2.18"/><line x1="7" x2="7" y1="2" y2="22"/><line x1="17" x2="17" y1="2" y2="22"/><line x1="2" x2="22" y1="12" y2="12"/><line x1="2" x2="7" y1="7" y2="7"/><line x1="2" x2="7" y1="17" y2="17"/><line x1="17" x2="22" y1="17" y2="17"/><line x1="17" x2="22" y1="7" y2="7"/></svg>
+          </div>
+          <div>
+            <span class="logo-title">CINE<span class="red">PHILE</span></span>
+            <span class="logo-sub">OMDb Client Hub</span>
+          </div>
+        </div>
+
+        <!-- Nav + Settings -->
+        <div class="header-right">
+          <nav id="tab-nav">
+            <button id="tab-discover-btn" class="tab-btn active" data-tab="discover">
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+              <span>Discover</span>
+            </button>
+            <button id="tab-favorites-btn" class="tab-btn" data-tab="favorites">
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>
+              <span>Favorites</span>
+              <span id="fav-count-badge" class="fav-badge hidden">0</span>
+            </button>
+          </nav>
+
+
+        </div>
+      </div>
+    </header>
+
+    <!-- Main -->
+    <main id="app-main">
+
+      <!-- Unauthorized Banner -->
+      <div id="unauthorized-banner" class="unauth-banner hidden">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="unauth-icon pulse"><circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/></svg>
+        <div>
+          <span class="unauth-title">OMDb API Key Notice (401)</span>
+          <p>The API key is expired or unauthorized. The offline blockbuster catalog is loaded — search, filter, sort, and view movie info still work!</p>
+          <p class="unauth-sub">To use live search, update the key in <strong>config.js</strong> with your own free key from <a href="https://www.omdbapi.com/apikey.aspx" target="_blank" rel="noopener noreferrer" class="inline-link">omdbapi.com</a>.</p>
+        </div>
+      </div>
+
+      <!-- Discover Tab -->
+      <section id="discover-tab" class="tab-section">
+        <!-- Search Bar -->
+        <div id="search-bar-container">
+          <form id="search-form">
+            <div id="search-input-group">
+              <div class="search-input-inner">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="search-icon"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+                <input id="search-input" type="text" placeholder="Search for movies, TV series, episodes..." autocomplete="off" />
+                <button type="button" id="clear-search-btn" class="clear-btn hidden" title="Clear Search">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+                </button>
+              </div>
+              <div class="search-actions">
+                <button type="button" id="toggle-filters-btn" class="filters-toggle-btn">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="21" x2="14" y1="4" y2="4"/><line x1="10" x2="3" y1="4" y2="4"/><line x1="21" x2="12" y1="12" y2="12"/><line x1="8" x2="3" y1="12" y2="12"/><line x1="21" x2="16" y1="20" y2="20"/><line x1="12" x2="3" y1="20" y2="20"/><circle cx="12" cy="4" r="2"/><circle cx="10" cy="12" r="2"/><circle cx="16" cy="20" r="2"/></svg>
+                  <span>Filters</span>
+                  <span id="filter-active-badge" class="filter-badge hidden">0</span>
+                </button>
+                <button type="submit" id="submit-search-btn" class="search-submit-btn">
+                  <svg id="search-btn-icon" xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+                  <div id="search-btn-spinner" class="spinner hidden"></div>
+                  <span>Search</span>
+                </button>
+              </div>
+            </div>
+          </form>
+
+          <!-- Filters Panel -->
+          <div id="filters-panel" class="filters-panel hidden">
+            <div class="filters-inner">
+              <!-- Type Filter -->
+              <div class="filter-group">
+                <label class="filter-label">Content Type</label>
+                <div class="type-btns" id="type-filter-group">
+                  <button type="button" class="type-btn active" data-type="all">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="20" x="2" y="2" rx="2.18"/><line x1="7" x2="7" y1="2" y2="22"/><line x1="17" x2="17" y1="2" y2="22"/><line x1="2" x2="22" y1="12" y2="12"/></svg>
+                    <span>All</span>
+                  </button>
+                  <button type="button" class="type-btn" data-type="movie">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="6 3 20 12 6 21 6 3"/></svg>
+                    <span>Movie</span>
+                  </button>
+                  <button type="button" class="type-btn" data-type="series">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="15" x="2" y="7" rx="2"/><polyline points="17 2 12 7 7 2"/></svg>
+                    <span>Series</span>
+                  </button>
+                  <button type="button" class="type-btn" data-type="episode">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2v4"/><path d="M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/></svg>
+                    <span>Episode</span>
+                  </button>
+                </div>
+              </div>
+              <!-- Year Filter -->
+              <div class="filter-group">
+                <label class="filter-label" for="year-filter-input">Release Year</label>
+                <div class="year-input-wrap">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="year-icon"><path d="M8 2v4"/><path d="M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/></svg>
+                  <input id="year-filter-input" type="number" min="1880" max="2027" placeholder="e.g. 2024 (leave blank for any)" />
+                  <button type="button" id="clear-year-btn" class="clear-year-btn hidden" title="Clear year">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+                  </button>
+                </div>
+                <p class="filter-hint">Search by specific release year, or filter search results instantly.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Results Section -->
+        <div class="results-section">
+          <!-- Results Header: title + sort -->
+          <div class="results-header">
+            <div>
+              <h2 id="results-title" class="results-heading">
+                <svg class="sparkle-icon pulse" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg>
+                <span id="results-heading-text">Curated Blockbuster Highlights</span>
+              </h2>
+              <p id="results-meta" class="results-meta">Featured selection of high-rating cinema files.</p>
+            </div>
+            <div id="sort-controls" class="sort-controls hidden">
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#e50914" stroke-width="2"><path d="M3 6h18"/><path d="M7 12h10"/><path d="M10 18h4"/></svg>
+              <span class="sort-label">Sort By</span>
+              <select id="sort-movies-select">
+                <option value="year-desc">Year: Newest</option>
+                <option value="year-asc">Year: Oldest</option>
+                <option value="title-asc">Title: A–Z</option>
+                <option value="title-desc">Title: Z–A</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Skeleton Loader -->
+          <div id="skeleton-grid" class="movies-grid hidden">
+            <!-- JS will inject skeletons -->
+          </div>
+
+          <!-- Error State -->
+          <div id="error-state" class="empty-state hidden">
+            <div class="empty-icon-wrap">
+              <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/></svg>
+            </div>
+            <h3>No Results Found</h3>
+            <p id="error-message">We couldn't find cinema files matching your search.</p>
+            <button id="reset-search-btn" class="btn-red hidden">Clear Active Search</button>
+          </div>
+
+          <!-- Movies Grid -->
+          <div id="movies-grid" class="movies-grid"></div>
+
+          <!-- Pagination -->
+          <div id="pagination" class="pagination hidden">
+            <button id="prev-page-btn" class="page-btn" disabled>
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m15 18-6-6 6-6"/></svg>
+            </button>
+            <div class="page-info">
+              <span class="page-current">Page <strong id="current-page-num">1</strong></span>
+              <span class="page-sep">/</span>
+              <span id="total-pages-num" class="page-total">1</span>
+            </div>
+            <button id="next-page-btn" class="page-btn">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m9 18 6-6-6-6"/></svg>
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Favorites Tab -->
+      <section id="favorites-tab" class="tab-section hidden">
+        <div class="fav-container">
+          <!-- Fav Header Controls -->
+          <div id="fav-controls" class="fav-controls hidden">
+            <div class="fav-search-wrap">
+              <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#e50914" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+              <input id="fav-local-search" type="text" placeholder="Filter saved movies by title..." />
+            </div>
+            <div class="fav-actions-row">
+              <div class="fav-type-btns" id="fav-type-group">
+                <button class="fav-type-btn active" data-favtype="all">All</button>
+                <button class="fav-type-btn" data-favtype="movie">Movie</button>
+                <button class="fav-type-btn" data-favtype="series">Series</button>
+              </div>
+              <button id="clear-all-fav-btn" class="btn-clear-all">
+                <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+                <span>Clear All</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Fav Grid -->
+          <div id="fav-grid" class="movies-grid"></div>
+
+          <!-- Fav Empty State -->
+          <div id="fav-empty" class="empty-state">
+            <div class="empty-icon-wrap pulse">
+              <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>
+            </div>
+            <h3>Your Favorites is Empty</h3>
+            <p>Keep track of movies and series you love. Click the ♥ heart on any poster to save them here.</p>
+          </div>
+
+          <!-- Fav No Results from filter -->
+          <div id="fav-no-filter-result" class="empty-state hidden">
+            <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.3)" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+            <p>No matches found for your filter.</p>
+            <button id="reset-fav-filters-btn" class="inline-link">Reset filters</button>
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer id="app-footer">
+      <div class="footer-left">
+        <span>OMDb v2.1 API Connected</span>
+        <span>Favorites Synchronized</span>
+      </div>
+      <div class="footer-right">
+        <span>Region: United States</span>
+        <span class="footer-live">
+          <span class="live-dot"></span>
+          Live Updates
+        </span>
+      </div>
+    </footer>
+
+  </div><!-- /app-root -->
+
+  <!-- Movie Detail Modal -->
+  <div id="movie-detail-overlay" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-label="Movie Details">
+    <div class="modal-backdrop" id="detail-backdrop"></div>
+    <div id="movie-detail-content" class="detail-modal">
+      <!-- Header toolbar -->
+      <div class="detail-toolbar">
+        <div class="detail-toolbar-left">
+          <span class="live-dot"></span>
+          <span id="detail-type-label" class="detail-type-label">Movie Details</span>
+        </div>
+        <div class="detail-toolbar-right">
+          <button id="toggle-fav-detail-btn" class="detail-fav-btn">
+            <svg id="detail-fav-icon" xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>
+            <span id="detail-fav-label">Favorite</span>
+          </button>
+          <button id="close-detail-btn" class="modal-close-btn" title="Close (Esc)">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+          </button>
+        </div>
+      </div>
+      <!-- Scrollable body -->
+      <div id="detail-body" class="detail-body">
+        <!-- JS injects content -->
+      </div>
+    </div>
+  </div>
+
+
+
+  <script src="config.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
