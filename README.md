@@ -23,7 +23,7 @@ No installation or build step required.
 3. Open `index.html` directly in your browser, or serve it with a local server (e.g. Live Server)
 
 ## Live Demo
-[Add your deployed link here]
+ "https://your-cinephile-link.vercel.app/
 
 ---
 CinePhile © 2026 · OMDb Client Hub
